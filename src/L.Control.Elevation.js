@@ -137,6 +137,10 @@ L.Control.Elevation = L.Control.extend({
             .style("pointer-events", "none")
             .attr("class", "mouse-focus-label-y");
 
+        this._tooltips = cont.append("div")
+            .attr("class", "tooltips")
+            .style("opacity", 0);
+
         if (this._data) {
             this._applyData();
         }
@@ -437,7 +441,7 @@ L.Control.Elevation = L.Control.extend({
     _mouseoutHandler: function () {
 
         this._hidePositionMarker();
-
+        this._hideTooltips();
     },
 
     /*
@@ -459,6 +463,11 @@ L.Control.Elevation = L.Control.extend({
         this._focusG.style("visibility", "hidden");
 
     },
+    _hideTooltips: function () {
+        if (this._tooltips) {
+            this._tooltips.style("visibility", "hidden");
+        }
+    },
 
     /*
      * Handles the moueseover the chart and displays distance and altitude level
@@ -477,7 +486,11 @@ L.Control.Elevation = L.Control.extend({
             numY = opts.hoverNumber.formatter(alt, opts.hoverNumber.decimalsY),
             numX = opts.hoverNumber.formatter(dist, opts.hoverNumber.decimalsX);
 
-        this._showDiagramIndicator(item, coords[0]);
+        if (opts.tooltips) {
+            this._showTooltips(item, coords[0]);
+        } else {
+            this._showDiagramIndicator(item, coords[0]);
+        }
 
         var layerpoint = this._map.latLngToLayerPoint(ll);
 
@@ -685,6 +698,7 @@ L.Control.Elevation = L.Control.extend({
      * Handles mouseover events of the data layers on the map.
      */
     _handleLayerMouseOver: function (evt) {
+        var opts = this.options;
         if (!this._data || this._data.length === 0) {
             return;
         }
@@ -692,9 +706,36 @@ L.Control.Elevation = L.Control.extend({
         var item = this._findItemForLatLng(latlng);
         if (item) {
             var x = item.xDiagCoord;
-            this._showDiagramIndicator(item, x);
+            if (opts.tooltips) {
+                this._showTooltips(item, x);
+            } else {
+                this._showDiagramIndicator(item, x);
+            }
         }
     },
+
+    _showTooltips: function (item, xCoordinate) {
+        console.dir(item);
+        console.log(xCoordinate);
+
+        var opts = this.options;
+
+        var tipsWidth = this._tooltips.style('width').slice(0, -2) * 1;
+        var tooltipsPos = xCoordinate + 20;
+        var tooltipsAlign = 'left';
+        if (this._width() / 2 < xCoordinate) {
+            tooltipsPos = xCoordinate - (tipsWidth + 20);
+            tooltipsAlign = 'right';
+        }
+
+        this._tooltips.style("text-align", tooltipsAlign).style("opacity", 1).style("left", tooltipsPos + 'px');
+        this._tooltips.html(
+            "<p>距離 : " + Math.round(item.dist * 100) / 100 + "km<br/>"
+            + "標高 : " + item.altitude + "m<br/>"
+            + "距離差 : " + item.altitude + "<br/>標高差<br/>平均斜度</p>");
+        this._tooltips.style("visibility", "visible");
+    },
+
 
     _showDiagramIndicator: function (item, xCoordinate) {
         var opts = this.options;

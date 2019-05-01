@@ -21,8 +21,9 @@
 	<link rel="stylesheet" href="../dist/leaflet.elevation-0.0.4.css" />
 
 	<script type="text/javascript" src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
-	<script type="text/javascript" src="../dist/leaflet.elevation-0.0.4.min.js"></script>
-
+	<!--	<script type="text/javascript" src="../dist/leaflet.elevation-0.0.4.min.js"></script>
+-->
+	<script type="text/javascript" src="../src/L.Control.Elevation.js"></script>
 	<style>
 		.elevation.leaflet-control {
 			position: absolute;
@@ -72,6 +73,7 @@
 			},
 			isInnerLabel: true,
 			useHeightIndicator: true,
+			tooltips: true,
 		});
 		el.addTo(map);
 		var gjl = L.geoJson(geojson, {
