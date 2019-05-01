@@ -740,7 +740,7 @@ L.Control.Elevation = L.Control.extend({
             "<p>"
             + opts.tooltipsLabel.dist + " : " + Math.round(item.dist * 100) / 100 + "km<br/>"
             + opts.tooltipsLabel.elevation + " : " + item.altitude + "m<br/>"
-            + opts.tooltipsLabel.slope + " : " + 0 + "%<br/>"
+            + opts.tooltipsLabel.slope + " : " + Math.round(item.slope * 100) / 10 + "%<br/>"
             + "</p>");
         /*
                     + "罔 : " + item.altitude + "m<br/>"
@@ -803,6 +803,30 @@ L.Control.Elevation = L.Control.extend({
         this._updateAxis();
 
         this._fullExtent = this._calculateFullExtent(this._data);
+
+        if (opts.addSlope) {
+            var _elevBuffer = 0;
+            var _distBuffer = 0;
+
+            for (var i = 0, len = this._data.length; i < len; i++) {
+                if (i === 0) {
+                    _distBuffer = this._data[i].dist;
+                    _elevBuffer = this._data[i].altitude;
+                    this._data[i].slope = 0;
+                    continue;
+                }
+                var distDiff = parseFloat(this._data[i].dist - _distBuffer);
+                var elevDiff = parseFloat(this._data[i].altitude - _elevBuffer);
+
+                if (elevDiff === 0) {
+                    this._data[i].slope = 0;
+                }
+                this._data[i].slope = elevDiff / distDiff / 100;
+                // this._data[i].slope = Math.atan(elevDiff / distDiff) * 180 / 3.141592653589793;
+                _elevBuffer = this._data[i].altitude;
+                _distBuffer = this._data[i].dist;
+            }
+        }
     },
 
     /*
