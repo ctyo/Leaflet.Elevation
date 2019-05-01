@@ -715,9 +715,6 @@ L.Control.Elevation = L.Control.extend({
     },
 
     _showTooltips: function (item, xCoordinate) {
-        console.dir(item);
-        console.log(xCoordinate);
-
         var opts = this.options;
 
         this._focusG.style("visibility", "visible");
