@@ -101,7 +101,7 @@ L.Control.Elevation = L.Control.extend({
             .style("stroke", "none")
             .style("pointer-events", "all");
 
-        if (L.Browse.mobile) {
+        if (L.Browser.mobile) {
 
             background.on("touchmove.drag", this._dragHandler.bind(this)).
                 on("touchstart.drag", this._dragStartHandler.bind(this)).
