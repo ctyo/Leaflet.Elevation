@@ -737,11 +737,11 @@ L.Control.Elevation = L.Control.extend({
 
         this._tooltips.style("text-align", tooltipsAlign).style("opacity", 1).style("left", tooltipsPos + 'px');
         this._tooltips.html(
-            "<p>"
-            + opts.tooltipsLabel.dist + " : " + Math.round(item.dist * 100) / 100 + "km<br/>"
-            + opts.tooltipsLabel.elevation + " : " + item.altitude + "m<br/>"
-            + opts.tooltipsLabel.slope + " : " + Math.round(item.slope * 100) / 10 + "%<br/>"
-            + "</p>");
+            "<p>" +
+            opts.tooltipsLabel.dist + " : " + Math.round(item.dist * 100) / 100 + "km<br/>" +
+            opts.tooltipsLabel.elevation + " : " + item.altitude + "m<br/>" +
+            opts.tooltipsLabel.slope + " : " + Math.round(item.slope * 100) / 10 + "%<br/>" +
+            "</p>");
         /*
                     + "罔 : " + item.altitude + "m<br/>"
                     + "距離差 : " + item.altitude + "<br/>標高差<br/>平均斜度</p>");

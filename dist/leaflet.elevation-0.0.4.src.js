@@ -150,7 +150,7 @@ L.Control.Elevation = L.Control.extend({
 
     _dragHandler: function () {
 
-        //we don´t want map events to occur here
+        //we dont want map events to occur here
         d3.event.preventDefault();
         d3.event.stopPropagation();
 
@@ -720,14 +720,32 @@ L.Control.Elevation = L.Control.extend({
 
         var opts = this.options;
 
+        this._focusG.style("visibility", "visible");
+        this._mousefocus.attr('x1', xCoordinate)
+            .attr('y1', 0)
+            .attr('x2', xCoordinate)
+            .attr('y2', this._height())
+            .classed('hidden', false);
+
         var tipsWidth = this._tooltips.style('width').slice(0, -2) * 1;
-        var tooltipsPos = xCoordinate + 30;
+        var tooltipsPos = xCoordinate + 20;
+        var tooltipsAlign = 'left';
         if (this._width() / 2 < xCoordinate) {
-            tooltipsPos = xCoordinate - (tipsWidth + 30);
+            tooltipsPos = xCoordinate - (tipsWidth + 20);
+            tooltipsAlign = 'right';
         }
-        this._tooltips.style("opacity", 1).style("left", tooltipsPos + 'px');
+
+        this._tooltips.style("text-align", tooltipsAlign).style("opacity", 1).style("left", tooltipsPos + 'px');
         this._tooltips.html(
-            "<p>距離<br/>標高<br/>距離差<br/>標高差<br/>平均斜度</p>");
+            "<p>" +
+            opts.tooltipsLabel.dist + " : " + Math.round(item.dist * 100) / 100 + "km<br/>" +
+            opts.tooltipsLabel.elevation + " : " + item.altitude + "m<br/>" +
+            opts.tooltipsLabel.slope + " : " + Math.round(item.slope * 100) / 10 + "%<br/>" +
+            "</p>");
+        /*
+                    + "罔 : " + item.altitude + "m<br/>"
+                    + "距離差 : " + item.altitude + "<br/>標高差<br/>平均斜度</p>");
+                    */
         this._tooltips.style("visibility", "visible");
     },
 
@@ -785,6 +803,30 @@ L.Control.Elevation = L.Control.extend({
         this._updateAxis();
 
         this._fullExtent = this._calculateFullExtent(this._data);
+
+        if (opts.addSlope) {
+            var _elevBuffer = 0;
+            var _distBuffer = 0;
+
+            for (var i = 0, len = this._data.length; i < len; i++) {
+                if (i === 0) {
+                    _distBuffer = this._data[i].dist;
+                    _elevBuffer = this._data[i].altitude;
+                    this._data[i].slope = 0;
+                    continue;
+                }
+                var distDiff = parseFloat(this._data[i].dist - _distBuffer);
+                var elevDiff = parseFloat(this._data[i].altitude - _elevBuffer);
+
+                if (elevDiff === 0) {
+                    this._data[i].slope = 0;
+                }
+                this._data[i].slope = elevDiff / distDiff / 100;
+                // this._data[i].slope = Math.atan(elevDiff / distDiff) * 180 / 3.141592653589793;
+                _elevBuffer = this._data[i].altitude;
+                _distBuffer = this._data[i].dist;
+            }
+        }
     },
 
     /*
