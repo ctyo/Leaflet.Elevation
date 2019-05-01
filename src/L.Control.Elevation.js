@@ -365,13 +365,14 @@ L.Control.Elevation = L.Control.extend({
 
     _appendYaxis: function (y) {
         var opts = this.options;
+        var labelPosition = opts.isInnerLabel === true ? 'right' : 'left';
 
         if (opts.imperial) {
             y.attr("class", "y axis")
                 .call(d3.svg.axis()
                     .scale(this._y)
                     .ticks(this.options.yTicks)
-                    .orient("left"))
+                    .orient(labelPosition))
                 .append("text")
                 .attr("x", -37)
                 .attr("y", 3)
@@ -382,7 +383,7 @@ L.Control.Elevation = L.Control.extend({
                 .call(d3.svg.axis()
                     .scale(this._y)
                     .ticks(this.options.yTicks)
-                    .orient("left"))
+                    .orient(labelPosition))
                 .append("text")
                 .attr("x", -45)
                 .attr("y", 3)
@@ -393,6 +394,7 @@ L.Control.Elevation = L.Control.extend({
 
     _appendXaxis: function (x) {
         var opts = this.options;
+        var labelPosition = opts.isInnerLabel === true ? 'top' : 'bottom';
 
         if (opts.imperial) {
             x.attr("class", "x axis")
@@ -400,7 +402,7 @@ L.Control.Elevation = L.Control.extend({
                 .call(d3.svg.axis()
                     .scale(this._x)
                     .ticks(this.options.xTicks)
-                    .orient("bottom"))
+                    .orient(labelPosition))
                 .append("text")
                 .attr("x", this._width() + 10)
                 .attr("y", 15)
@@ -412,7 +414,7 @@ L.Control.Elevation = L.Control.extend({
                 .call(d3.svg.axis()
                     .scale(this._x)
                     .ticks(this.options.xTicks)
-                    .orient("bottom"))
+                    .orient(labelPosition))
                 .append("text")
                 .attr("x", this._width() + 20)
                 .attr("y", 15)
