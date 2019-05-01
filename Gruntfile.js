@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
     // Project configuration.
     grunt.initConfig({
@@ -130,7 +130,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-svg2png');
 
     // Default task(s).
-    grunt.registerTask('default', ['clean', 'jshint', 'connect', 'jasmine', 'concat', 'uglify', 'less', 'cssmin',
+    grunt.registerTask('default', ['clean', 'jshint', 'connect', /*'jasmine',*/ 'concat', 'uglify', 'less', 'cssmin',
         'svg2png'
     ]);
 

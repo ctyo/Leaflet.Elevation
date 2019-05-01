@@ -32,11 +32,11 @@ L.Control.Elevation = L.Control.extend({
     __mileFactor: 0.621371,
     __footFactor: 3.28084,
 
-    onRemove: function(map) {
+    onRemove: function (map) {
         this._container = null;
     },
 
-    onAdd: function(map) {
+    onAdd: function (map) {
         this._map = map;
 
         var opts = this.options;
@@ -53,13 +53,13 @@ L.Control.Elevation = L.Control.extend({
 
         var area = this._area = d3.svg.area()
             .interpolate(opts.interpolation)
-            .x(function(d) {
+            .x(function (d) {
                 var xDiagCoord = x(d.dist);
                 d.xDiagCoord = xDiagCoord;
                 return xDiagCoord;
             })
             .y0(this._height())
-            .y1(function(d) {
+            .y1(function (d) {
                 return y(d.altitude);
             });
 
@@ -69,7 +69,10 @@ L.Control.Elevation = L.Control.extend({
         this._initToggle();
 
         var cont = d3.select(container);
+        container.style.width = opts.width + 'px';
+        container.style.height = opts.height + 'px';
         cont.attr("width", opts.width);
+
         var svg = cont.append("svg");
         svg.attr("width", opts.width)
             .attr("class", "background")
@@ -79,10 +82,10 @@ L.Control.Elevation = L.Control.extend({
 
         var line = d3.svg.line();
         line = line
-            .x(function(d) {
+            .x(function (d) {
                 return d3.mouse(svg.select("g"))[0];
             })
-            .y(function(d) {
+            .y(function (d) {
                 return this._height();
             });
 
@@ -101,16 +104,16 @@ L.Control.Elevation = L.Control.extend({
         if (L.Browser.touch) {
 
             background.on("touchmove.drag", this._dragHandler.bind(this)).
-            on("touchstart.drag", this._dragStartHandler.bind(this)).
-            on("touchstart.focus", this._mousemoveHandler.bind(this));
+                on("touchstart.drag", this._dragStartHandler.bind(this)).
+                on("touchstart.focus", this._mousemoveHandler.bind(this));
             L.DomEvent.on(this._container, 'touchend', this._dragEndHandler, this);
 
         } else {
 
             background.on("mousemove.focus", this._mousemoveHandler.bind(this)).
-            on("mouseout.focus", this._mouseoutHandler.bind(this)).
-            on("mousedown.drag", this._dragStartHandler.bind(this)).
-            on("mousemove.drag", this._dragHandler.bind(this));
+                on("mouseout.focus", this._mouseoutHandler.bind(this)).
+                on("mousedown.drag", this._dragStartHandler.bind(this)).
+                on("mousemove.drag", this._dragHandler.bind(this));
             L.DomEvent.on(this._container, 'mouseup', this._dragEndHandler, this);
 
         }
@@ -141,7 +144,7 @@ L.Control.Elevation = L.Control.extend({
         return container;
     },
 
-    _dragHandler: function() {
+    _dragHandler: function () {
 
         //we don´t want map events to occur here
         d3.event.preventDefault();
@@ -156,7 +159,7 @@ L.Control.Elevation = L.Control.extend({
     /*
      * Draws the currently dragged rectabgle over the chart.
      */
-    _drawDragRectangle: function() {
+    _drawDragRectangle: function () {
 
         if (!this._dragStartCoords) {
             return;
@@ -188,7 +191,7 @@ L.Control.Elevation = L.Control.extend({
     /*
      * Removes the drag rectangle and zoms back to the total extent of the data.
      */
-    _resetDrag: function() {
+    _resetDrag: function () {
 
         if (this._dragRectangleG) {
 
@@ -207,7 +210,7 @@ L.Control.Elevation = L.Control.extend({
     /*
      * Handles end of dragg operations. Zooms the map to the selected items extent.
      */
-    _dragEndHandler: function() {
+    _dragEndHandler: function () {
 
         if (!this._dragStartCoords || !this._gotDragged) {
             this._dragStartCoords = null;
@@ -228,7 +231,7 @@ L.Control.Elevation = L.Control.extend({
 
     },
 
-    _dragStartHandler: function() {
+    _dragStartHandler: function () {
 
         d3.event.preventDefault();
         d3.event.stopPropagation();
@@ -242,8 +245,8 @@ L.Control.Elevation = L.Control.extend({
     /*
      * Finds a data entry for a given x-coordinate of the diagram
      */
-    _findItemForX: function(x) {
-        var bisect = d3.bisector(function(d) {
+    _findItemForX: function (x) {
+        var bisect = d3.bisector(function (d) {
             return d.dist;
         }).left;
         var xinvert = this._x.invert(x);
@@ -253,10 +256,10 @@ L.Control.Elevation = L.Control.extend({
     /*
      * Finds an item with the smallest delta in distance to the given latlng coords
      */
-    _findItemForLatLng: function(latlng) {
+    _findItemForLatLng: function (latlng) {
         var result = null,
             d = Infinity;
-        this._data.forEach(function(item) {
+        this._data.forEach(function (item) {
             var dist = latlng.distanceTo(item.latlng);
             if (dist < d) {
                 d = dist;
@@ -267,7 +270,7 @@ L.Control.Elevation = L.Control.extend({
     },
 
     /** Make the map fit the route section between given indexes. */
-    _fitSection: function(index1, index2) {
+    _fitSection: function (index1, index2) {
 
         var start = Math.min(index1, index2),
             end = Math.max(index1, index2);
@@ -278,7 +281,7 @@ L.Control.Elevation = L.Control.extend({
 
     },
 
-    _initToggle: function() {
+    _initToggle: function () {
 
         /* inspired by L.Control.Layers */
 
@@ -321,20 +324,20 @@ L.Control.Elevation = L.Control.extend({
         }
     },
 
-    _expand: function() {
+    _expand: function () {
         this._container.className = this._container.className.replace(' elevation-collapsed', '');
     },
 
-    _collapse: function() {
+    _collapse: function () {
         L.DomUtil.addClass(this._container, 'elevation-collapsed');
     },
 
-    _width: function() {
+    _width: function () {
         var opts = this.options;
         return opts.width - opts.margins.left - opts.margins.right;
     },
 
-    _height: function() {
+    _height: function () {
         var opts = this.options;
         return opts.height - opts.margins.top - opts.margins.bottom;
     },
@@ -342,7 +345,7 @@ L.Control.Elevation = L.Control.extend({
     /*
      * Fromatting funciton using the given decimals and seperator
      */
-    _formatter: function(num, dec, sep) {
+    _formatter: function (num, dec, sep) {
         var res;
         if (dec === 0) {
             res = Math.round(num) + "";
@@ -360,7 +363,7 @@ L.Control.Elevation = L.Control.extend({
         return res;
     },
 
-    _appendYaxis: function(y) {
+    _appendYaxis: function (y) {
         var opts = this.options;
 
         if (opts.imperial) {
@@ -388,7 +391,7 @@ L.Control.Elevation = L.Control.extend({
         }
     },
 
-    _appendXaxis: function(x) {
+    _appendXaxis: function (x) {
         var opts = this.options;
 
         if (opts.imperial) {
@@ -418,7 +421,7 @@ L.Control.Elevation = L.Control.extend({
         }
     },
 
-    _updateAxis: function() {
+    _updateAxis: function () {
         this._xaxisgraphicnode.selectAll("g").remove();
         this._xaxisgraphicnode.selectAll("path").remove();
         this._xaxisgraphicnode.selectAll("text").remove();
@@ -429,7 +432,7 @@ L.Control.Elevation = L.Control.extend({
         this._appendYaxis(this._yaxisgraphicnode);
     },
 
-    _mouseoutHandler: function() {
+    _mouseoutHandler: function () {
 
         this._hidePositionMarker();
 
@@ -438,7 +441,7 @@ L.Control.Elevation = L.Control.extend({
     /*
      * Hides the position-/heigth indication marker drawn onto the map
      */
-    _hidePositionMarker: function() {
+    _hidePositionMarker: function () {
 
         if (this._marker) {
             this._map.removeLayer(this._marker);
@@ -458,7 +461,7 @@ L.Control.Elevation = L.Control.extend({
     /*
      * Handles the moueseover the chart and displays distance and altitude level
      */
-    _mousemoveHandler: function(d, i, ctx) {
+    _mousemoveHandler: function (d, i, ctx) {
         if (!this._data || this._data.length === 0) {
             return;
         }
@@ -546,7 +549,7 @@ L.Control.Elevation = L.Control.extend({
     /*
      * Parsing of GeoJSON data lines and their elevation in z-coordinate
      */
-    _addGeoJSONData: function(coords) {
+    _addGeoJSONData: function (coords) {
         var opts = this.options;
         if (coords) {
             var data = this._data || [];
@@ -576,7 +579,7 @@ L.Control.Elevation = L.Control.extend({
     /*
      * Parsing function for GPX data as used by https://github.com/mpetazzoni/leaflet-gpx
      */
-    _addGPXdata: function(coords) {
+    _addGPXdata: function (coords) {
         var opts = this.options;
         if (coords) {
             var data = this._data || [];
@@ -603,7 +606,7 @@ L.Control.Elevation = L.Control.extend({
         }
     },
 
-    _addData: function(d) {
+    _addData: function (d) {
         var geom = d && d.geometry && d.geometry;
         var i;
 
@@ -639,7 +642,7 @@ L.Control.Elevation = L.Control.extend({
     /*
      * Calculates the full extent of the data array
      */
-    _calculateFullExtent: function(data) {
+    _calculateFullExtent: function (data) {
 
         if (!data || data.length < 1) {
             throw new Error("no data in parameters");
@@ -647,7 +650,7 @@ L.Control.Elevation = L.Control.extend({
 
         var ext = new L.latLngBounds(data[0].latlng, data[0].latlng);
 
-        data.forEach(function(item) {
+        data.forEach(function (item) {
             ext.extend(item.latlng);
         });
 
@@ -659,7 +662,7 @@ L.Control.Elevation = L.Control.extend({
      * Add data to the diagram either from GPX or GeoJSON and
      * update the axis domain and data
      */
-    addData: function(d, layer) {
+    addData: function (d, layer) {
         this._addData(d);
         if (this._container) {
             this._applyData();
@@ -675,7 +678,7 @@ L.Control.Elevation = L.Control.extend({
     /*
      * Handles mouseover events of the data layers on the map.
      */
-    _handleLayerMouseOver: function(evt) {
+    _handleLayerMouseOver: function (evt) {
         if (!this._data || this._data.length === 0) {
             return;
         }
@@ -687,7 +690,7 @@ L.Control.Elevation = L.Control.extend({
         }
     },
 
-    _showDiagramIndicator: function(item, xCoordinate) {
+    _showDiagramIndicator: function (item, xCoordinate) {
         var opts = this.options;
         this._focusG.style("visibility", "visible");
         this._mousefocus.attr('x1', xCoordinate)
@@ -717,11 +720,11 @@ L.Control.Elevation = L.Control.extend({
         }
     },
 
-    _applyData: function() {
-        var xdomain = d3.extent(this._data, function(d) {
+    _applyData: function () {
+        var xdomain = d3.extent(this._data, function (d) {
             return d.dist;
         });
-        var ydomain = d3.extent(this._data, function(d) {
+        var ydomain = d3.extent(this._data, function (d) {
             return d.altitude;
         });
         var opts = this.options;
@@ -745,7 +748,7 @@ L.Control.Elevation = L.Control.extend({
     /*
      * Reset data
      */
-    _clearData: function() {
+    _clearData: function () {
         this._data = null;
         this._dist = null;
         this._maxElevation = null;
@@ -754,7 +757,7 @@ L.Control.Elevation = L.Control.extend({
     /*
      * Reset data and display
      */
-    clear: function() {
+    clear: function () {
 
         this._clearData();
 
@@ -771,15 +774,15 @@ L.Control.Elevation = L.Control.extend({
         this._y.domain([0, 1]);
         this._updateAxis();
     },
-    hide: function() {
+    hide: function () {
         this._container.style.display = "none";
     },
-    show: function() {
+    show: function () {
         this._container.style.display = "block";
     }
 
 });
 
-L.control.elevation = function(options) {
+L.control.elevation = function (options) {
     return new L.Control.Elevation(options);
 };
