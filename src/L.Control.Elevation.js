@@ -150,7 +150,7 @@ L.Control.Elevation = L.Control.extend({
 
     _dragHandler: function () {
 
-        //we don´t want map events to occur here
+        //we dont want map events to occur here
         d3.event.preventDefault();
         d3.event.stopPropagation();
 
@@ -720,6 +720,13 @@ L.Control.Elevation = L.Control.extend({
 
         var opts = this.options;
 
+        this._focusG.style("visibility", "visible");
+        this._mousefocus.attr('x1', xCoordinate)
+            .attr('y1', 0)
+            .attr('x2', xCoordinate)
+            .attr('y2', this._height())
+            .classed('hidden', false);
+
         var tipsWidth = this._tooltips.style('width').slice(0, -2) * 1;
         var tooltipsPos = xCoordinate + 20;
         var tooltipsAlign = 'left';
@@ -730,9 +737,15 @@ L.Control.Elevation = L.Control.extend({
 
         this._tooltips.style("text-align", tooltipsAlign).style("opacity", 1).style("left", tooltipsPos + 'px');
         this._tooltips.html(
-            "<p>距離 : " + Math.round(item.dist * 100) / 100 + "km<br/>"
-            + "標高 : " + item.altitude + "m<br/>"
-            + "距離差 : " + item.altitude + "<br/>標高差<br/>平均斜度</p>");
+            "<p>"
+            + opts.tooltipsLabel.dist + " : " + Math.round(item.dist * 100) / 100 + "km<br/>"
+            + opts.tooltipsLabel.elevation + " : " + item.altitude + "m<br/>"
+            + opts.tooltipsLabel.slope + " : " + 0 + "%<br/>"
+            + "</p>");
+        /*
+                    + "罔 : " + item.altitude + "m<br/>"
+                    + "距離差 : " + item.altitude + "<br/>標高差<br/>平均斜度</p>");
+                    */
         this._tooltips.style("visibility", "visible");
     },
 

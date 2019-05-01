@@ -3,6 +3,7 @@
 
 <head>
 	<title>Coordinate viewing test page</title>
+	<meta http-equiv="content-type" charset="utf-8">
 	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 	<style>
 		html,
@@ -74,6 +75,14 @@
 			isInnerLabel: true,
 			useHeightIndicator: true,
 			tooltips: true,
+			tooltipsLabel: {
+				dist: '距離',
+				elevation: '標高',
+				slope: '斜度',
+				distDiff: '距離差',
+				elevationDiff: '標高差',
+				slopeAverage: '平均斜度',
+			}
 		});
 		el.addTo(map);
 		var gjl = L.geoJson(geojson, {
