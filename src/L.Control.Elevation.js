@@ -621,6 +621,10 @@ L.Control.Elevation = L.Control.extend({
                         this._addGeoJSONData(geom.coordinates[i]);
                     }
                     break;
+                case 'Point':
+                    // TODO: adding plot func
+                    console.log("Geometry of type Point found in GeoJSON, ignoring it for elevation plot.");
+                    break;
 
                 default:
                     throw new Error('Invalid GeoJSON object.');
