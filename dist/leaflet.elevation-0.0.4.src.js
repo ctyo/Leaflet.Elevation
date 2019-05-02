@@ -12,6 +12,7 @@ L.Control.Elevation = L.Control.extend({
         },
         useHeightIndicator: true,
         interpolation: "linear",
+        elevationZoom: true,
         hoverNumber: {
             decimalsX: 3,
             decimalsY: 0,
@@ -73,7 +74,7 @@ L.Control.Elevation = L.Control.extend({
         container.style.height = opts.height + 'px';
         cont.attr("width", opts.width);
 
-        var svg = cont.append("svg");
+        var svg = this._svg = cont.append("svg");
         svg.attr("width", opts.width)
             .attr("class", "background")
             .attr("height", opts.height)
@@ -81,6 +82,7 @@ L.Control.Elevation = L.Control.extend({
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         var line = d3.svg.line();
+        console.dir(line);
         line = line
             .x(function (d) {
                 return d3.mouse(svg.select("g"))[0];
@@ -101,7 +103,12 @@ L.Control.Elevation = L.Control.extend({
             .style("stroke", "none")
             .style("pointer-events", "all");
 
-        if (L.Browser.touch) {
+        g.append("clipPath").attr("id", "clip")
+            .append("rect").attr("width", this._width())
+            .attr("height", this._height());
+
+
+        if (L.Browser.mobile) {
 
             background.on("touchmove.drag", this._dragHandler.bind(this)).
                 on("touchstart.drag", this._dragStartHandler.bind(this)).
@@ -204,11 +211,9 @@ L.Control.Elevation = L.Control.extend({
             this._dragRectangle = null;
 
             this._hidePositionMarker();
-
-            this._map.fitBounds(this._fullExtent);
-
         }
-
+        this._map.fitBounds(this._fullExtent);
+        this._zoom(0, this._data.length - 1);
     },
 
     /*
@@ -227,12 +232,22 @@ L.Control.Elevation = L.Control.extend({
 
         var item1 = this._findItemForX(this._dragStartCoords[0]),
             item2 = this._findItemForX(this._dragCurrentCoords[0]);
+        if (item1 == item2) {
+            this._resetDrag();
+            return;
+        }
 
         this._fitSection(item1, item2);
+        this._zoom(item1, item2);
 
         this._dragStartCoords = null;
         this._gotDragged = false;
 
+        if (this._dragRectangleG) {
+            this._dragRectangleG.remove();
+            this._dragRectangleG = null;
+            this._dragRectangle = null;
+        }
     },
 
     _dragStartHandler: function () {
@@ -294,7 +309,7 @@ L.Control.Elevation = L.Control.extend({
         //Makes this work on IE10 Touch devices by stopping it from firing a mouseout event when the touch is released
         container.setAttribute('aria-haspopup', true);
 
-        if (!L.Browser.touch) {
+        if (!L.Browser.mobile) {
             L.DomEvent
                 .disableClickPropagation(container);
             //.disableScrollPropagation(container);
@@ -315,7 +330,7 @@ L.Control.Elevation = L.Control.extend({
             link.href = '#';
             link.title = this.options.controlButton.title;
 
-            if (L.Browser.touch) {
+            if (L.Browser.mobile) {
                 L.DomEvent
                     .on(link, 'click', L.DomEvent.stop)
                     .on(link, 'click', this._expand, this);
@@ -344,6 +359,31 @@ L.Control.Elevation = L.Control.extend({
     _height: function () {
         var opts = this.options;
         return opts.height - opts.margins.top - opts.margins.bottom;
+    },
+    /*
+     * Zooms (in or out) the elevation graph
+     * for the given x item indexes
+     * (with awesome svg path animation)
+     *
+     * @param i - this._data index of the beggining of zoom
+     * @param j - this._data index of the end of zoom
+     */
+    _zoom: function (i, j) {
+        if (!this.options.elevationZoom) {
+            return;
+        }
+        if (i > j) {
+            var tmp = j;
+            j = i;
+            i = tmp;
+        }
+        var xdomain = d3.extent(this._data.slice(i, j), function (d) {
+            return d.dist;
+        });
+        this._x.domain(xdomain);
+        var t = this._svg.transition().duration(750);
+        t.select(".x.axis").call(this._x_axis);
+        t.select(".area").attr("d", this._area);
     },
 
     /*
@@ -399,14 +439,15 @@ L.Control.Elevation = L.Control.extend({
     _appendXaxis: function (x) {
         var opts = this.options;
         var labelPosition = opts.isInnerLabel === true ? 'top' : 'bottom';
+        this._x_axis = d3.svg.axis()
+            .scale(this._x)
+            .ticks(this.options.xTicks)
+            .orient(labelPosition);
 
         if (opts.imperial) {
             x.attr("class", "x axis")
                 .attr("transform", "translate(0," + this._height() + ")")
-                .call(d3.svg.axis()
-                    .scale(this._x)
-                    .ticks(this.options.xTicks)
-                    .orient(labelPosition))
+                .call(this._x_axis)
                 .append("text")
                 .attr("x", this._width() + 10)
                 .attr("y", 15)
@@ -577,6 +618,7 @@ L.Control.Elevation = L.Control.extend({
                 dist = dist + Math.round(newdist / 1000 * 100000) / 100000;
                 ele = ele < coords[i][2] ? coords[i][2] : ele;
                 data.push({
+                    index: i,
                     dist: dist,
                     altitude: opts.imperial ? coords[i][2] * this.__footFactor : coords[i][2],
                     x: coords[i][0],
@@ -607,6 +649,7 @@ L.Control.Elevation = L.Control.extend({
                 dist = dist + Math.round(newdist / 1000 * 100000) / 100000;
                 ele = ele < s.meta.ele ? s.meta.ele : ele;
                 data.push({
+                    index: i,
                     dist: dist,
                     altitude: opts.imperial ? s.meta.ele * this.__footFactor : s.meta.ele,
                     x: s.lng,
@@ -715,9 +758,6 @@ L.Control.Elevation = L.Control.extend({
     },
 
     _showTooltips: function (item, xCoordinate) {
-        console.dir(item);
-        console.log(xCoordinate);
-
         var opts = this.options;
 
         this._focusG.style("visibility", "visible");
@@ -799,7 +839,8 @@ L.Control.Elevation = L.Control.extend({
         this._x.domain(xdomain);
         this._y.domain(ydomain);
         this._areapath.datum(this._data)
-            .attr("d", this._area);
+            .attr("d", this._area)
+            .attr("clip-path", "url(#clip)");
         this._updateAxis();
 
         this._fullExtent = this._calculateFullExtent(this._data);
